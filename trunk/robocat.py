@@ -39,7 +39,7 @@ PROXY={}
 ADMINS=[u'tishka17@jabber.ufanet.ru',u'lapin@psihaven.com',u'robocat@psihaven.com']
 IGNORE=[u'chat@conference.jabber.ufanet.ru/kenny',u'chat@conference.jabber.ufanet.ru/alengina',u'chat@conference.jabber.ufanet.ru/Metalcore']
 COMMANDS={}
-LogFile='./Bot.log.html'
+LogFile='../Bot.log.html'
 #LogFile='/media/data/www/BotLog.html'
 
 Greetings=0

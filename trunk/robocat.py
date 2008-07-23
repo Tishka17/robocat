@@ -38,8 +38,8 @@ else:
 
 	conn=xmpp.Client(server,debug=[])
 
-CONFERENCES=[]
-#CONFERENCES=[(u'livejournal@conference.jabber.ru',''),(u'кит@conference.psihaven.com','')]
+CONFERENCES={}
+#CONFERENCES={u'livejournal@conference.jabber.ru':'',u'кит@conference.psihaven.com':''}
 PROXY={}
 #PROXY={'host':'http://proxy.ufanet.ru','port':3128}
 #PROXY={'host':'192.168.0.1','port':3128,'username':'tishka17','password':'secret'}
@@ -83,40 +83,45 @@ def DoSimpleAnswer(user,command,args,mess):
 	return answer
 	
 def JoinConf(CONF):
-	p=xmpp.protocol.Presence(to='%s/%s'%(CONF[0],jid.getResource()))
-	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',CONF[1])
+	if CONF in CONFERENCES:
+		secret=CONFERENCES[CONF]
+	else:
+		secret=''
+		CONFERENCES[CONF]=''
+	p=xmpp.protocol.Presence(to='%s/%s'%(CONF,jid.getResource()))
+	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',secret)
 	p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
 	conn.send(p)
 
 	if Greetings:
 		rnd=random.randrange(1,5)
-		if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем приветик!',typ='groupchat'))
-		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Хеллоу всем!',typ='groupchat'))
-		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем мяу!',typ='groupchat'))
-		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Здравствуйте все!',typ='groupchat'))
+		if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Всем приветик!',typ='groupchat'))
+		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Хеллоу всем!',typ='groupchat'))
+		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Всем мяу!',typ='groupchat'))
+		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Здравствуйте все!',typ='groupchat'))
 	if Echo:	
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u'Conference %s entered'%CONF[0]
-	LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
+		print now+u'Conference %s entered'%CONF
+	LOG(time.time(),u'',u'Conference %s entered'%CONF,-1)
 
 def LeaveConf(CONF):
-	p=xmpp.protocol.Presence(to='%s'%(CONF[0]),typ='unavailable')
+	p=xmpp.protocol.Presence(to='%s'%(CONF),typ='unavailable')
 	conn.send(p)
 	if Echo:	
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u'Conference %s left'%CONF[0]
-	LOG(time.time(),u'',u'Conference %s left'%CONF[0],-1)
+		print now+u'Conference %s left'%CONF
+	LOG(time.time(),u'',u'Conference %s left'%CONF,-1)
 	
 def JoinHandler(user,command,args,mess):
 	try: 
-		JoinConf((args,u''))
+		JoinConf(args)
 		return u'Захожу в конференцию %s'%args
 	except:
 		return u'Не могу зайти в конференцию %s'%args
 
 def LeaveHandler(user,command,args,mess):
 	try: 
-		LeaveConf((args,u''))
+		LeaveConf(args)
 		return u'Выхожу из конференции %s'%args
 	except:
 		return u'Не могу выйти из конференции %s'%args
@@ -208,7 +213,7 @@ def messageCB(conn,mess):
     text=mess.getBody()
     user=mess.getFrom()
 
-    if (user in [i[0] for i in CONFERENCES]) or (user in [i[0]+u'/'+xmpp.JID(sys.argv[1]).getResource() for i in CONFERENCES]) or (user in IGNORE) or (user.getStripped() in IGNORE) or (type(text)!=type(u'')):
+    if (user in CONFERENCES) or (user in [i+u'/'+jid.getResource() for i in CONFERENCES]) or (user in IGNORE) or (user.getStripped() in IGNORE) or (type(text)!=type(u'')):
 	    return
     else:
 	LOG(mess,user,text)

@@ -51,7 +51,8 @@ LogFile='../Bot.log.html'
 
 Greetings=0
 Echo=0
-MaxReply=400
+MaxChatReply=400
+MaxReply=2000
 
 random.seed()
 ########################### user handlers start ##################################
@@ -200,11 +201,11 @@ COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи'
 COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения другому пользователю. Синтаксис: джид_получателя сообщение')
 COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')
-COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: кино1 [кинотеатр]')
+COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: миркино [кинотеатр]')
 COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
 COMMANDS[u'чезакино']=(wiki2txt.CinemaHandler,0,u'Описание фильмов. Синтаксис; чезакино название_название фильма')
 COMMANDS[u'вики']=(wiki2txt.WikiHandler,0,u'Поулчение статей из википедии. Синтаксис; вики название_статьи')
-COMMANDS[u'выход']=(exitHandler,1,u'Закрыть бота')
+COMMANDS[u'закрыть']=(exitHandler,1,u'Закрыть бота')
 COMMANDS[u'справка']=(helpHandler,0,u'Эта справка. Синтаксис: справка [имя команды]')
 ########################### user handlers stop ###################################
 ############################ bot logic start #####################################
@@ -245,15 +246,17 @@ def messageCB(conn,mess):
 			else: reply=u''
 
 	if len(reply): 
+		if len(reply)>MaxReply and MaxReply:
+			reply=reply[:MaxReply]+u'...'
 		if mess.getType()=='groupchat':
-			if len(reply)>MaxReply and MaxReply:
+			if len(reply)>MaxChatReply and MaxChatReply:
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
-				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+u": "+reply[:MaxReply]+u"<...>",typ='groupchat')
+				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+u": "+reply[:MaxChatReply]+u"<...>",typ='groupchat')
 				mess2=xmpp.Message(mess.getFrom(),reply,typ='chat')
-				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxReply]+u"<...>",1)
+				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxChatReply]+u"<...>",1)
 				LOG(mess2,mess.getFrom(),reply,1)
 				if Echo:
-					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply[:MaxReply]+u"<...>"
+					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply[:MaxChatReply]+u"<...>"
 					print now,mess.getFrom(),u'<--',reply
 				conn.send(mess1)
 				conn.send(mess2)

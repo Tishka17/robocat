@@ -98,6 +98,15 @@ def JoinConf(CONF):
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u'Conference %s entered'%CONF[0]
 	LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
+
+def LeaveConf(CONF):
+	p=xmpp.protocol.Presence(to='%s'%(CONF[0]),typ='unavailable')
+	conn.send(p)
+	if Echo:	
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u'Conference %s left'%CONF[0]
+	LOG(time.time(),u'',u'Conference %s left'%CONF[0],-1)
+	
 def JoinHandler(user,command,args,mess):
 	try: 
 		JoinConf((args,u''))
@@ -105,7 +114,27 @@ def JoinHandler(user,command,args,mess):
 	except:
 		return u'Не могу зайти в конференцию %s'%args
 
+def LeaveHandler(user,command,args,mess):
+	try: 
+		LeaveConf((args,u''))
+		return u'Выхожу из конференции %s'%args
+	except:
+		return u'Не могу выйти из конференции %s'%args
 
+def SendHandler(user,command,args,mess):
+	ls=re.split('^\s*(.*?)\s(.*)\s*',args)
+	if len(ls)>2:
+		t=ls[1]
+		m=ls[2]
+		now=time.strftime(u'%H:%M>',time.localtime(time.time()))
+		mess1=xmpp.Message(xmpp.JID(t),m,typ='chat')
+		LOG(mess1,t,m,1)
+		if Echo:
+			print now,t,u'<--',m
+		conn.send(mess1)
+		return u'Сообщение отправлено пользователю %s'%t
+	else:
+		return u'Вы не указали получателя или текст соообщения'
 
 def helpHandler(user,command,args,mess):
 	lst=[]
@@ -163,7 +192,9 @@ def LOG(stanza,nick,text,to=0):
 
 
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
-COMMANDS[u'зайди']=(JoinHandler,0,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
+COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения другому пользователю. Синтаксис: джид_получателя сообщение')
+COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
+COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')
 COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: кино1 [кинотеатр]')
 COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
 COMMANDS[u'чезакино']=(wiki2txt.CinemaHandler,0,u'Описание фильмов. Синтаксис; чезакино название_название фильма')

@@ -38,8 +38,8 @@ else:
 
 	conn=xmpp.Client(server,debug=[])
 
-#CONFERENCES=[]
-CONFERENCES=[(u'livejournal@conference.jabber.ru',''),(u'кит@conference.psihaven.com','')]
+CONFERENCES=[]
+#CONFERENCES=[(u'livejournal@conference.jabber.ru',''),(u'кит@conference.psihaven.com','')]
 PROXY={}
 #PROXY={'host':'http://proxy.ufanet.ru','port':3128}
 #PROXY={'host':'192.168.0.1','port':3128,'username':'tishka17','password':'secret'}
@@ -82,6 +82,30 @@ def DoSimpleAnswer(user,command,args,mess):
 			else: answer=answer+u' '+SimpleAnswer[i]
 	return answer
 	
+def JoinConf(CONF):
+	p=xmpp.protocol.Presence(to='%s/%s'%(CONF[0],jid.getResource()))
+	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',CONF[1])
+	p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
+	conn.send(p)
+
+	if Greetings:
+		rnd=random.randrange(1,5)
+		if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем приветик!',typ='groupchat'))
+		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Хеллоу всем!',typ='groupchat'))
+		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем мяу!',typ='groupchat'))
+		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Здравствуйте все!',typ='groupchat'))
+	if Echo:	
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u'Conference %s entered'%CONF[0]
+	LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
+def JoinHandler(user,command,args,mess):
+	try: 
+		JoinConf((args,u''))
+		return u'Захожу в конференцию %s'%args
+	except:
+		return u'Не могу зайти в конференцию %s'%args
+
+
 
 def helpHandler(user,command,args,mess):
 	lst=[]
@@ -139,6 +163,7 @@ def LOG(stanza,nick,text,to=0):
 
 
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
+COMMANDS[u'зайди']=(JoinHandler,0,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: кино1 [кинотеатр]')
 COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
 COMMANDS[u'чезакино']=(wiki2txt.CinemaHandler,0,u'Описание фильмов. Синтаксис; чезакино название_название фильма')
@@ -265,20 +290,5 @@ if Echo:
 LOG(time.time(),u'',u"Logged in.",-1)
 
 for CONF in CONFERENCES:
-	p=xmpp.protocol.Presence(to='%s/%s'%(CONF[0],jid.getResource()))
-	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',CONF[1])
-	p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
-	conn.send(p)
-
-	if Greetings:
-		rnd=random.randrange(1,5)
-		if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем приветик!',typ='groupchat'))
-		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Хеллоу всем!',typ='groupchat'))
-		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем мяу!',typ='groupchat'))
-		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Здравствуйте все!',typ='groupchat'))
-	if Echo:	
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u'Conference %s entered'%CONF[0]
-	LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
-
+	JoinConf(CONF)
 GoOn(conn)

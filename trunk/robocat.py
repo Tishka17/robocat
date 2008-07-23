@@ -29,7 +29,14 @@ import afisha,mirkino #2 kino schedule getting libraries
 import wiki2txt 
 import os
 
-jid=xmpp.JID(u'somthing@someserver.null') #it's taken from command line, do not need to write here real jid
+if len(sys.argv)<3:
+	print "Usage: bot.py username@server.net password"
+	sys.exit()
+else:
+	jid=xmpp.JID(sys.argv[1])
+	user,server,resource,password=jid.getNode(),jid.getDomain(),jid.getResource(),sys.argv[2]
+
+	conn=xmpp.Client(server,debug=[])
 
 #CONFERENCES=[]
 CONFERENCES=[(u'livejournal@conference.jabber.ru',''),(u'кит@conference.psihaven.com','')]
@@ -218,60 +225,60 @@ def StepOn(conn):
 def GoOn(conn):
 	while StepOn(conn): pass
 
-if len(sys.argv)<3:
-	print "Usage: bot.py username@server.net password"
-else:
-	jid=xmpp.JID(sys.argv[1])
-	user,server,resource,password=jid.getNode(),jid.getDomain(),jid.getResource(),sys.argv[2]
 
-	conn=xmpp.Client(server,debug=[])
-	conres=conn.connect(proxy=PROXY)
-	if not conres:
-		if Echo:
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u"Unable to connect to server %s!"%server
-		LOG(time.time(),u'',u"Unable to connect to server %s!"%server,-1)
-		sys.exit(1)
-	if conres<>'tls':
-		if Echo:
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u"Warning: unable to estabilish secure connection - TLS failed!"
-		LOG(time.time(),u'',u"Warning: unable to estabilish secure connection - TLS failed!",-1)
+if Echo:
+	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+	print now+u"Bot started."
+LOG(time.time(),u'',u"Bot started.",-1)
 
-	authres=conn.auth(user,password,resource)
-	if not authres:
-		if Echo:
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u"Unable to authorize on %s - check login/password."%server
-		LOG(time.time(),u'',u"Unable to authorize on %s - check login/password."%server,-1)
-		sys.exit(1)
-	if authres<>'sasl':
-		if Echo:
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server
-		LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
-	conn.RegisterHandler('message',messageCB)
-	conn.sendInitPresence()
+conres=conn.connect(proxy=PROXY)
+if not conres:
 	if Echo:
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u"Bot started."
-	LOG(time.time(),u'',u"Bot started.",-1)
+		print now+u"Unable to connect to server %s!"%server
+	LOG(time.time(),u'',u"Unable to connect to server %s!"%server,-1)
+	sys.exit(1)
+if conres<>'tls':
+	if Echo:
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u"Warning: unable to estabilish secure connection - TLS failed!"
+	LOG(time.time(),u'',u"Warning: unable to estabilish secure connection - TLS failed!",-1)
 
-	for CONF in CONFERENCES:
-		p=xmpp.protocol.Presence(to='%s/%s'%(CONF[0],jid.getResource()))
-		p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',CONF[1])
-		p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
-		conn.send(p)
+authres=conn.auth(user,password,resource)
+if not authres:
+	if Echo:
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u"Unable to authorize on %s - check login/password."%server
+	LOG(time.time(),u'',u"Unable to authorize on %s - check login/password."%server,-1)
+	sys.exit(1)
+if authres<>'sasl':
+	if Echo:
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server
+	LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
+conn.RegisterHandler('message',messageCB)
+conn.sendInitPresence()
 
-		if Greetings:
-			rnd=random.randrange(1,5)
-			if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем приветик!',typ='groupchat'))
-			elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Хеллоу всем!',typ='groupchat'))
-			elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем мяу!',typ='groupchat'))
-			elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Здравствуйте все!',typ='groupchat'))
-		if Echo:	
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u'Conference %s entered'%CONF[0]
-		LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
+if Echo:
+	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+	print now+u"Logged in."
+LOG(time.time(),u'',u"Logged in.",-1)
 
-	GoOn(conn)
+for CONF in CONFERENCES:
+	p=xmpp.protocol.Presence(to='%s/%s'%(CONF[0],jid.getResource()))
+	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',CONF[1])
+	p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
+	conn.send(p)
+
+	if Greetings:
+		rnd=random.randrange(1,5)
+		if rnd==1:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем приветик!',typ='groupchat'))
+		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Хеллоу всем!',typ='groupchat'))
+		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Всем мяу!',typ='groupchat'))
+		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF[0]),u'Здравствуйте все!',typ='groupchat'))
+	if Echo:	
+		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+		print now+u'Conference %s entered'%CONF[0]
+	LOG(time.time(),u'',u'Conference %s entered'%CONF[0],-1)
+
+GoOn(conn)

@@ -278,6 +278,16 @@ def messageCB(conn,mess):
 	if command==u'выход' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
         	sys.exit()
 
+def PresenceHandler(cn,presence):
+	if presence and presence.getType()=='subscribe':
+		j=presence.getFrom().getStripped()
+		roster=conn.getRoster()
+		roster.Authorize(j)
+		roster.Subscribe(j)
+		if Echo:
+			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
+			print now+u"JID: %s authorized"%j
+		LOG(time.time(),u'',u"JID: %s authorized"%j,-1)
 ############################# bot logic stop #####################################
 
 def StepOn(conn):
@@ -321,6 +331,7 @@ if authres<>'sasl':
 		print now+u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server
 	LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
 conn.RegisterHandler('message',messageCB)
+conn.RegisterHandler('presence',PresenceHandler)
 conn.sendInitPresence()
 
 if Echo:

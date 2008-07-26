@@ -9,6 +9,7 @@ def getXMPPStanzaTime(stanza):
 	if not ts:
 		ts=stanza.setTimestamp()
 		ts=stanza.getTimestamp()
+#	print(ts)
 	tp=time.mktime(time.strptime(ts,'%Y%m%dT%H:%M:%S'))
 	#got the local time in py-useable form from stanza
 	if not time.daylight: 
@@ -23,7 +24,7 @@ def getXMPPStanzaTime(stanza):
 	#tm=time.strftime("%H:%M:%S",tp)
  
 
-class logFile:
+class logClass:
 	fileHeader='''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="ru-RU" lang="ru-RU" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -76,7 +77,7 @@ class logFile:
 		'''Logs XMPP stanza into file.
 		Must have xmpp module.
 		style is an index of logRecTemplate'''
-		logtime=time.strftime('%H:%M:%S',getXMPPStanzaTime(stanza))
-		self.file.write((logRecTemplate[style]%(logtime,stanza.getFrom(), stanza.getBody())).encode(utf-8))
+		logtime=time.strftime('%H:%M:%S',time.localtime(getXMPPStanzaTime(stanza)))
+		self.file.write((self.logRecTemplate[style]%(logtime,stanza.getFrom(),stanza.getBody())).encode('utf-8'))
 		self.file.flush()
 

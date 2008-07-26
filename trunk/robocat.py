@@ -28,6 +28,8 @@ import time
 import afisha,mirkino #2 kino schedule getting libraries
 import wiki2txt 
 import os
+import logwriter
+from logwriter import *
 
 if len(sys.argv)<3:
 	print "Usage: bot.py username@server.net password"
@@ -46,7 +48,8 @@ PROXY={}
 ADMINS=[u'tishka17@jabber.ufanet.ru',u'lapin@psihaven.com',u'robocat@psihaven.com']
 IGNORE=[u'chat@conference.jabber.ufanet.ru/kenny',u'chat@conference.jabber.ufanet.ru/alengina',u'chat@conference.jabber.ufanet.ru/Metalcore']
 COMMANDS={}
-LogFile='../Bot.log.html'
+LogFileName='../Bot.log.html'
+LogFile='../Bot.log0.html'
 #LogFile='/media/data/www/BotLog.html'
 
 Greetings=0
@@ -103,7 +106,8 @@ def JoinConf(CONF):
 	if Echo:	
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u'Conference %s entered'%CONF
-	LOG(time.time(),u'',u'Conference %s entered'%CONF,-1)
+	logger.wrTxt('%ROBOCAT%',u'Conference %s entered'%CONF,'sys')
+#	LOG(time.time(),u'',u'Conference %s entered'%CONF,-1)
 
 def LeaveConf(CONF):
 	p=xmpp.protocol.Presence(to='%s'%(CONF),typ='unavailable')
@@ -111,7 +115,8 @@ def LeaveConf(CONF):
 	if Echo:	
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u'Conference %s left'%CONF
-	LOG(time.time(),u'',u'Conference %s left'%CONF,-1)
+	logger.wrTxt('%ROBOCAT%',u'Conference %s left'%CONF,'sys')
+#	LOG(time.time(),u'',u'Conference %s left'%CONF,-1)
 	
 def JoinHandler(user,command,args,mess):
 	try: 
@@ -134,6 +139,7 @@ def SendHandler(user,command,args,mess):
 		m=ls[2]
 		now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 		mess1=xmpp.Message(xmpp.JID(t),m,typ='chat')
+		#TODO:
 		LOG(mess1,t,m,1)
 		if Echo:
 			print now,t,u'<--',m
@@ -217,6 +223,7 @@ def messageCB(conn,mess):
     if (user in CONFERENCES) or (user in [i+u'/'+jid.getResource() for i in CONFERENCES]) or (user in IGNORE) or (user.getStripped() in IGNORE) or (type(text)!=type(u'')):
 	    return
     else:
+	#TODO:
 	LOG(mess,user,text)
         if text.find(u' ')+1: command,args=text.split(u' ',1)
         else: command,args=text,''
@@ -253,7 +260,9 @@ def messageCB(conn,mess):
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+u": "+reply[:MaxChatReply]+u"<...>",typ='groupchat')
 				mess2=xmpp.Message(mess.getFrom(),reply,typ='chat')
+				#TODO
 				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxChatReply]+u"<...>",1)
+				#TODO
 				LOG(mess2,mess.getFrom(),reply,1)
 				if Echo:
 					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply[:MaxChatReply]+u"<...>"
@@ -263,6 +272,7 @@ def messageCB(conn,mess):
 			else:
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+": "+reply,typ='groupchat')
+				#TODO
 				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply,1)
 				if Echo:
 					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply
@@ -270,6 +280,7 @@ def messageCB(conn,mess):
 		else: 
 			now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 			mess1=xmpp.Message(mess.getFrom(),reply,typ=mess.getType())
+			#TODO
 			LOG(mess1,mess.getFrom(),reply,1)
 			if Echo:
 				print now,mess.getFrom(),'<--',reply
@@ -287,7 +298,8 @@ def PresenceHandler(cn,presence):
 		if Echo:
 			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 			print now+u"JID: %s authorized"%j
-		LOG(time.time(),u'',u"JID: %s authorized"%j,-1)
+		logger.wrTxt('%ROBOCAT%',u'JID: %s authorized'%j,'sys')
+		#LOG(time.time(),u'',u"JID: %s authorized"%j,-1)
 ############################# bot logic stop #####################################
 
 def StepOn(conn):
@@ -299,37 +311,44 @@ def StepOn(conn):
 def GoOn(conn):
 	while StepOn(conn): pass
 
-
+### INIT
+logger=logFile(LogFileName)
 if Echo:
 	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 	print now+u"Bot started."
-LOG(time.time(),u'',u"Bot started.",-1)
+logger.wrTxt('%ROBOCAT%',u'Bot started.','sys')
+#LOG(time.time(),u'',u"Bot started.",-1)
 
 conres=conn.connect(proxy=PROXY)
 if not conres:
 	if Echo:
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u"Unable to connect to server %s!"%server
-	LOG(time.time(),u'',u"Unable to connect to server %s!"%server,-1)
+	logger.wrTxt('%ROBOCAT%',u"Unable to connect to server %s!"%server,'sys')
+	#LOG(time.time(),u'',u"Unable to connect to server %s!"%server,-1)
 	sys.exit(1)
 if conres<>'tls':
 	if Echo:
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u"Warning: unable to estabilish secure connection - TLS failed!"
-	LOG(time.time(),u'',u"Warning: unable to estabilish secure connection - TLS failed!",-1)
+	
+	logger.wrTxt('%ROBOCAT%',u"Warning: unable to estabilish secure connection - TLS failed!",'sys')
+	#LOG(time.time(),u'',u"Warning: unable to estabilish secure connection - TLS failed!",-1)
 
 authres=conn.auth(user,password,resource)
 if not authres:
 	if Echo:
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u"Unable to authorize on %s - check login/password."%server
-	LOG(time.time(),u'',u"Unable to authorize on %s - check login/password."%server,-1)
+	logger.wrTxt('%ROBOCAT%',u"Unable to authorize on %s - check login/password."%server,'sys')
+	#LOG(time.time(),u'',u"Unable to authorize on %s - check login/password."%server,-1)
 	sys.exit(1)
 if authres<>'sasl':
 	if Echo:
 		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 		print now+u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server
-	LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
+	logger.wrTxt('%ROBOCAT%',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,'sys')
+	#LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
 conn.RegisterHandler('message',messageCB)
 conn.RegisterHandler('presence',PresenceHandler)
 conn.sendInitPresence()
@@ -337,7 +356,8 @@ conn.sendInitPresence()
 if Echo:
 	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 	print now+u"Logged in."
-LOG(time.time(),u'',u"Logged in.",-1)
+logger.wrTxt('%ROBOCAT%',"Logged in",'sys')
+#LOG(time.time(),u'',u"Logged in.",-1)
 
 for CONF in CONFERENCES:
 	JoinConf(CONF)

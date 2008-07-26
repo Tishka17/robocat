@@ -139,8 +139,8 @@ def SendHandler(user,command,args,mess):
 		m=ls[2]
 		now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 		mess1=xmpp.Message(xmpp.JID(t),m,typ='chat')
-		#TODO:
-		LOG(mess1,t,m,1)
+		#LOG(mess1,t,m,1)
+		logger.wrXMPPStanza(mess1)
 		if Echo:
 			print now,t,u'<--',m
 		conn.send(mess1)
@@ -223,8 +223,8 @@ def messageCB(conn,mess):
     if (user in CONFERENCES) or (user in [i+u'/'+jid.getResource() for i in CONFERENCES]) or (user in IGNORE) or (user.getStripped() in IGNORE) or (type(text)!=type(u'')):
 	    return
     else:
-	#TODO:
-	LOG(mess,user,text)
+#	LOG(mess,user,text)
+	logger.wrXMPPStanza(mess)
         if text.find(u' ')+1: command,args=text.split(u' ',1)
         else: command,args=text,''
         cmd=command.lower()
@@ -260,10 +260,10 @@ def messageCB(conn,mess):
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+u": "+reply[:MaxChatReply]+u"<...>",typ='groupchat')
 				mess2=xmpp.Message(mess.getFrom(),reply,typ='chat')
-				#TODO
-				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxChatReply]+u"<...>",1)
-				#TODO
-				LOG(mess2,mess.getFrom(),reply,1)
+				logger.wrXMPPStanza(mess1)
+				#LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxChatReply]+u"<...>",1)
+				logger.wrXMPPStanza(mess2)
+				#LOG(mess2,mess.getFrom(),reply,1)
 				if Echo:
 					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply[:MaxChatReply]+u"<...>"
 					print now,mess.getFrom(),u'<--',reply
@@ -272,16 +272,16 @@ def messageCB(conn,mess):
 			else:
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+": "+reply,typ='groupchat')
-				#TODO
-				LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply,1)
+				logger.wrXMPPStanza(mess1)
+				#LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply,1)
 				if Echo:
 					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply
 				conn.send(mess1)
 		else: 
 			now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 			mess1=xmpp.Message(mess.getFrom(),reply,typ=mess.getType())
-			#TODO
-			LOG(mess1,mess.getFrom(),reply,1)
+			logger.wrXMPPStanza(mess1)
+			#LOG(mess1,mess.getFrom(),reply,1)
 			if Echo:
 				print now,mess.getFrom(),'<--',reply
 			conn.send(mess1)
@@ -312,7 +312,7 @@ def GoOn(conn):
 	while StepOn(conn): pass
 
 ### INIT
-logger=logFile(LogFileName)
+logger=logClass(LogFileName)
 if Echo:
 	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
 	print now+u"Bot started."

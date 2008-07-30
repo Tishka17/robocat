@@ -1,7 +1,5 @@
-
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-
 # robocat.py
 # RoboCat is a simple jabber bot. It's rather stupid now, but probably will be cleverer later
 # Copyright (C) 2008 Tikhonov Andrey aka Tishka17 
@@ -32,6 +30,7 @@ import os
 import logwriter
 
 class RoboCat:
+	'Class of robocat bot. Implements main functionality of it'
 	Settings={u'show':u'available',u'status':u'Робокот в сети. Юзайте справку'}
 	Conferences={}
 
@@ -60,6 +59,7 @@ class RoboCat:
 			self.conn.send(pres)
 		
 	def joinConf(conf,secret=u''):
+		'Makes bot to join conference'
 		if not conf:
 			return u'No conference jid'
 		if secret:
@@ -81,20 +81,24 @@ class RoboCat:
 				elif rnd==2:	self.conn.send(xmpp.Message(xmpp.JID(conf),u'Хеллоу всем!',typ='groupchat'))
 				elif rnd==3:	self.conn.send(xmpp.Message(xmpp.JID(conf),u'Всем мяу!',typ='groupchat'))
 				elif rnd==4:	self.conn.send(xmpp.Message(xmpp.JID(conf),u'Здравствуйте все!',typ='groupchat'))
+		else: return 'Not connected'
 
 	def leaveConf(conf):
+		'Makes bot to leave conference'
 		if self.conn:
 			p=xmpp.protocol.Presence(to='%s'%(conf),typ='unavailable')
 			conn.send(p)
+		else: return 'Not connected'
 
 
-	def senMessage(self,to,message,type):
+	def sendMessage(self,to,message,typp):
+		'Send message of one of three types. Stripes long messages.'
 		if not message or not type or not to: return 'Not enough parameters'
 		if not self.conn: return 'Not connected'
 
 		if len(message)>int(self.Settings[u'MaxMessage']):
 			message=message[:int(self.Settings[u'MaxMessage'])]+' ...'
-		if type='groupchat':
+		if typp=='groupchat':
 			if type(to)==type('') or type(to)==type(u''):
 				jid=JID(to)
 			else: jid=to
@@ -106,9 +110,9 @@ class RoboCat:
 				mess2=xmpp.Message(to,message,typ='chat')
 				self.conn.send(mess2)
 			else:
-				mess1=xmpp.Message(conf,res+u": "+reply[],typ='groupchat')
+				mess1=xmpp.Message(conf,res+u": "+message,typ='groupchat')
 				self.conn.send(mess1)
 
-		elif type='chat' or type='message':
-			mess1=xmpp.Message(to,message,typ)	
+		elif typp=='chat' or typp=='message':
+			mess1=xmpp.Message(to,message,typp)	
 			self.conn.send(mess1)

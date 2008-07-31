@@ -103,20 +103,12 @@ def JoinConf(CONF):
 		elif rnd==2:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Хеллоу всем!',typ='groupchat'))
 		elif rnd==3:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Всем мяу!',typ='groupchat'))
 		elif rnd==4:    conn.send(xmpp.Message(xmpp.JID(CONF),u'Здравствуйте все!',typ='groupchat'))
-	if Echo:	
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u'Conference %s entered'%CONF
-	logger.wrTxt('%ROBOCAT%',u'Conference %s entered'%CONF,'sys')
-#	LOG(time.time(),u'',u'Conference %s entered'%CONF,-1)
+	logger.LOG((u'Conference %s entered'%CONF,),'simple')
 
 def LeaveConf(CONF):
 	p=xmpp.protocol.Presence(to='%s'%(CONF),typ='unavailable')
 	conn.send(p)
-	if Echo:	
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u'Conference %s left'%CONF
-	logger.wrTxt('%ROBOCAT%',u'Conference %s left'%CONF,'sys')
-#	LOG(time.time(),u'',u'Conference %s left'%CONF,-1)
+	logger.LOG((u'Conference %s left'%CONF,),'simple')
 	
 def JoinHandler(user,command,args,mess):
 	try: 
@@ -137,12 +129,8 @@ def SendHandler(user,command,args,mess):
 	if len(ls)>2:
 		t=ls[1]
 		m=ls[2]
-		now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 		mess1=xmpp.Message(xmpp.JID(t),m,typ='chat')
-		#LOG(mess1,t,m,1)
-		logger.wrXMPPStanza(mess1)
-		if Echo:
-			print now,t,u'<--',m
+		logger.LOG(mess1,'simple')
 		conn.send(mess1)
 		return u'Сообщение отправлено пользователю %s'%t
 	else:
@@ -223,14 +211,10 @@ def messageCB(conn,mess):
     if (user in CONFERENCES) or (user in [i+u'/'+jid.getResource() for i in CONFERENCES]) or (user in IGNORE) or (user.getStripped() in IGNORE) or (type(text)!=type(u'')):
 	    return
     else:
-#	LOG(mess,user,text)
-	logger.wrXMPPStanza(mess)
+	logger.LOG(mess,'simple')
         if text.find(u' ')+1: command,args=text.split(u' ',1)
         else: command,args=text,''
         cmd=command.lower()
-	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-	if Echo:
-		print now+user.__str__(),u"-->",text
 	personal=1
 
 	if mess.getType()=='groupchat':	
@@ -260,30 +244,19 @@ def messageCB(conn,mess):
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+u": "+reply[:MaxChatReply]+u"<...>",typ='groupchat')
 				mess2=xmpp.Message(mess.getFrom(),reply,typ='chat')
-				logger.wrXMPPStanza(mess1)
-				#LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply[:MaxChatReply]+u"<...>",1)
-				logger.wrXMPPStanza(mess2)
-				#LOG(mess2,mess.getFrom(),reply,1)
-				if Echo:
-					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply[:MaxChatReply]+u"<...>"
-					print now,mess.getFrom(),u'<--',reply
+				logger.LOG(mess1,'simple')
+				logger.LOG(mess2,'simple')
 				conn.send(mess1)
 				conn.send(mess2)
 			else:
 				now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 				mess1=xmpp.Message(mess.getFrom().getStripped(),user.getResource()+": "+reply,typ='groupchat')
-				logger.wrXMPPStanza(mess1)
-				#LOG(mess1,mess.getFrom().getStripped(),user.getResource()+u":"+reply,1)
-				if Echo:
-					print now,mess.getFrom().getStripped(),u'<--',user.getResource()+u": "+reply
+				logger.LOG(mess1,'simple')
 				conn.send(mess1)
 		else: 
 			now=time.strftime(u'%H:%M>',time.localtime(time.time()))
 			mess1=xmpp.Message(mess.getFrom(),reply,typ=mess.getType())
-			logger.wrXMPPStanza(mess1)
-			#LOG(mess1,mess.getFrom(),reply,1)
-			if Echo:
-				print now,mess.getFrom(),'<--',reply
+			logger.LOG(mess1,'simple')
 			conn.send(mess1)
 
 	if command==u'выход' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
@@ -306,11 +279,7 @@ def PresenceHandler(cn,presence):
 		roster=conn.getRoster()
 		roster.Authorize(j)
 		roster.Subscribe(j)
-		if Echo:
-			now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-			print now+u"JID: %s authorized"%j
-		logger.wrTxt('%ROBOCAT%',u'JID: %s authorized'%j,'sys')
-		#LOG(time.time(),u'',u"JID: %s authorized"%j,-1)
+		logger.LOG((u'JID: %s authorized'%j,),'simple')
 ############################# bot logic stop #####################################
 
 def StepOn(conn):
@@ -323,54 +292,36 @@ def GoOn(conn):
 	while StepOn(conn): pass
 
 ### INIT
-logger=logClass(LogFileName)
-if Echo:
-	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-	print now+u"Bot started."
-logger.wrTxt('%ROBOCAT%',u'Bot started.','sys')
-#LOG(time.time(),u'',u"Bot started.",-1)
+# logging module initialization
+loghtml=logToFile(LogFileName)
+logfun=(loghtml.wr,)
+logcon=logToCon()
+if Echo: 
+	logfun+=(logcon.wr,)
+logger=logRouter({'simple':logfun,'con':(logcon.wr,)})
+#logging module init end
 
+logger.LOG((u'Bot started',),'simple')
 conres=conn.connect(proxy=PROXY)
 if not conres:
-	if Echo:
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u"Unable to connect to server %s!"%server
-	logger.wrTxt('%ROBOCAT%',u"Unable to connect to server %s!"%server,'sys')
-	#LOG(time.time(),u'',u"Unable to connect to server %s!"%server,-1)
+	logger.LOG((u"Unable to connect to server %s!"%server,),'simple')
 	sys.exit(1)
 if conres<>'tls':
-	if Echo:
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u"Warning: unable to estabilish secure connection - TLS failed!"
-	
-	logger.wrTxt('%ROBOCAT%',u"Warning: unable to estabilish secure connection - TLS failed!",'sys')
-	#LOG(time.time(),u'',u"Warning: unable to estabilish secure connection - TLS failed!",-1)
-
+	logger.LOG((u"Warning: unable to estabilish secure connection - TLS failed!",),'simple')
 authres=conn.auth(user,password,resource)
 if not authres:
-	if Echo:
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u"Unable to authorize on %s - check login/password."%server
-	logger.wrTxt('%ROBOCAT%',u"Unable to authorize on %s - check login/password."%server,'sys')
-	#LOG(time.time(),u'',u"Unable to authorize on %s - check login/password."%server,-1)
+	logger.LOG((u"Unable to authorize on %s - check login/password."%server,),'simple')
 	sys.exit(1)
 if authres<>'sasl':
-	if Echo:
-		now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-		print now+u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server
-	logger.wrTxt('%ROBOCAT%',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,'sys')
-	#LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
+	logger.LOG((u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,),'simple')
+
 conn.RegisterHandler('message',messageCB)
 conn.RegisterHandler('iq',versionHandler,'get',xmpp.NS_VERSION)
 conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
 conn.RegisterHandler('presence',PresenceHandler)
 conn.sendInitPresence()
 
-if Echo:
-	now=time.strftime(u'%H:%M> ',time.localtime(time.time()))
-	print now+u"Logged in."
-logger.wrTxt('%ROBOCAT%',"Logged in",'sys')
-#LOG(time.time(),u'',u"Logged in.",-1)
+logger.LOG((u"Logged in.",),'simple')
 
 for CONF in CONFERENCES:
 	JoinConf(CONF)

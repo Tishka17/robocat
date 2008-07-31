@@ -289,6 +289,17 @@ def messageCB(conn,mess):
 	if command==u'выход' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
         	sys.exit()
 
+def discoHandler(cn,stanza):
+	iq=stanza.buildReply('result')
+	iq.getTag('query').addChild('feature',{'var':xmpp.NS_VERSION})
+	cn.send(iq)
+
+def versionHandler(cn,stanza):
+	iq=stanza.buildReply('result')
+	iq.getTag('query').setTagData('name','Robocat')
+	iq.getTag('query').setTagData('version','0.0.0 dev')
+	cn.send(iq)
+
 def PresenceHandler(cn,presence):
 	if presence and presence.getType()=='subscribe':
 		j=presence.getFrom().getStripped()
@@ -350,6 +361,8 @@ if authres<>'sasl':
 	logger.wrTxt('%ROBOCAT%',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,'sys')
 	#LOG(time.time(),u'',u"Warning: unable to perform SASL auth os %s. Old authentication method used!"%server,-1)
 conn.RegisterHandler('message',messageCB)
+conn.RegisterHandler('iq',versionHandler,'get',xmpp.NS_VERSION)
+conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
 conn.RegisterHandler('presence',PresenceHandler)
 conn.sendInitPresence()
 

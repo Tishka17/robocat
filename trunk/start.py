@@ -52,7 +52,7 @@ LogFileName='../Bot.log.html'
 LogFile='../Bot.log0.html'
 #LogFile='/media/data/www/BotLog.html'
 
-Greetings=0
+Greetings=1
 Echo=0
 MaxChatReply=400
 MaxReply=2000
@@ -74,8 +74,15 @@ SimpleAnswer[u'айсик']=u'Смерть быдлоаське!'
 SimpleAnswer[u'icq']=u'Смерть быдлоаське!'
 SimpleAnswer[u'винда']=u'Вендекапец!!!'
 SimpleAnswer[u'windows']=u'Вендекапец'
+SimpleAnswer[u'jabber']=u'Джаббер рулит!'
+SimpleAnswer[u'джаббер']=u'Джаббер рулит!!!'
 SimpleAnswer[u'хз']=u'хз - хуй знает. Хуй все знает, да молчит...'
 SimpleAnswer[u'х.з']=u'х.з - хуй знает. Хуй все знает, да молчит...'
+SimpleAnswer[u'мур']=u'Че тебе?'
+SimpleAnswer[u'мяу']=u'гав )='
+SimpleAnswer[u':-*']=u'Жругого иди целуй'
+SimpleAnswer[u'*']=u'Фи'
+
 
 def DoSimpleAnswer(user,command,args,mess):
 	text=mess.getBody().lower()
@@ -154,11 +161,10 @@ def exitHandler(user,command,args,mess):
 	return u'До свидания!'
 
 def talk(user,command,args,mess):
-	rnd=random.randrange(1,5)
-	if rnd==1: return u'Юзай справку!'
-	if rnd==2: return u'Мяу'
-	if rnd==3: return u'Ну и че ты сюда пишешь?'
-	if rnd==4: return u'Тебе делать нечего?'
+	rnd=random.randrange(1,4)
+	if rnd==1: return u'Мяу'
+	if rnd==2: return u'Ну и че ты сюда пишешь?'
+	if rnd==3: return u'Тебе делать нечего?'
 
 def LOG(stanza,nick,text,to=0):
     if type(stanza)==type(time.time()):
@@ -196,7 +202,7 @@ COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения
 COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')
 COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: миркино [кинотеатр]')
-COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
+#COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
 COMMANDS[u'чезакино']=(wiki2txt.CinemaHandler,0,u'Описание фильмов. Синтаксис; чезакино название_название фильма')
 COMMANDS[u'вики']=(wiki2txt.WikiHandler,0,u'Поулчение статей из википедии. Синтаксис; вики название_статьи')
 COMMANDS[u'закрыть']=(exitHandler,1,u'Закрыть бота')
@@ -270,7 +276,8 @@ def discoHandler(cn,stanza):
 def versionHandler(cn,stanza):
 	iq=stanza.buildReply('result')
 	iq.getTag('query').setTagData('name','Robocat')
-	iq.getTag('query').setTagData('version','0.0.0 dev')
+	iq.getTag('query').setTagData('version','0.0.1 dev')
+	iq.getTag('query').setTagData('os','MS DOS 1.0 [64-bit edition]')
 	cn.send(iq)
 
 def PresenceHandler(cn,presence):
@@ -317,7 +324,7 @@ if authres<>'sasl':
 
 conn.RegisterHandler('message',messageCB)
 conn.RegisterHandler('iq',versionHandler,'get',xmpp.NS_VERSION)
-conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
+#conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
 conn.RegisterHandler('presence',PresenceHandler)
 conn.sendInitPresence()
 

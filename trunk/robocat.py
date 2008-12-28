@@ -116,3 +116,10 @@ class RoboCat:
 		elif typp=='chat' or typp=='message':
 			mess1=xmpp.Message(to,message,typp)	
 			self.conn.send(mess1)
+
+	def versionResponse(self,stanza):
+		iq=stanza.buildReply('result')
+		iq.getTag('query').setTagData('name','Robocat')
+		iq.getTag('query').setTagData('version','0.0.1 dev')
+		iq.getTag('query').setTagData('os','MS DOS 1.0 [64-bit edition]')
+		ceself.conn.send(iq)

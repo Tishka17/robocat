@@ -31,6 +31,8 @@ import os
 import logwriter
 from logwriter import *
 
+lastsent=time.localtime(time.time())
+
 if len(sys.argv)<3:
 	print "Usage: bot.py username@server.net password"
 	sys.exit()
@@ -80,7 +82,7 @@ SimpleAnswer[u'хз']=u'хз - хуй знает. Хуй все знает, да
 SimpleAnswer[u'х.з']=u'х.з - хуй знает. Хуй все знает, да молчит...'
 SimpleAnswer[u'мур']=u'Че тебе?'
 SimpleAnswer[u'мяу']=u'гав )='
-SimpleAnswer[u':-*']=u'Жругого иди целуй'
+SimpleAnswer[u':-*']=u'Другого иди целуй'
 SimpleAnswer[u'*']=u'Фи'
 
 
@@ -295,8 +297,13 @@ def StepOn(conn):
 	except KeyboardInterrupt: return 0
 	return 1
 
-def GoOn(conn):
-	while StepOn(conn): pass
+def GoOn(conn,lastsent):
+	while StepOn(conn): 
+		now=time.localtime(time.time())
+		if (now[4]!=lastsent[4]):
+		    iq=xmpp.Iq("get",to=jid)
+		    conn.send(iq)
+		    lastsent=now
 
 ### INIT
 # logging module initialization
@@ -332,4 +339,4 @@ logger.LOG((u"Logged in.",),'simple')
 
 for CONF in CONFERENCES:
 	JoinConf(CONF)
-GoOn(conn)
+GoOn(conn,lastsent)

@@ -204,7 +204,7 @@ COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения
 COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')
 COMMANDS[u'миркино']=(mirkino.kinoHandler,0,u'расписание кино в уфе с ценами. Синтаксис: миркино [кинотеатр]')
-#COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
+COMMANDS[u'кино']=(afisha.kinoAfisha,0,u'Расписание кино. Синтаксис: кино [в час:минута] город [кинотеатр/фильм]')
 COMMANDS[u'чезакино']=(wiki2txt.CinemaHandler,0,u'Описание фильмов. Синтаксис; чезакино название_название фильма')
 COMMANDS[u'вики']=(wiki2txt.WikiHandler,0,u'Поулчение статей из википедии. Синтаксис; вики название_статьи')
 COMMANDS[u'закрыть']=(exitHandler,1,u'Закрыть бота')
@@ -278,7 +278,7 @@ def discoHandler(cn,stanza):
 def versionHandler(cn,stanza):
 	iq=stanza.buildReply('result')
 	iq.getTag('query').setTagData('name','Robocat')
-	iq.getTag('query').setTagData('version','0.0.1 dev')
+	iq.getTag('query').setTagData('version','0.0.2 dev')
 	iq.getTag('query').setTagData('os','MS DOS 1.0 [64-bit edition]')
 	cn.send(iq)
 

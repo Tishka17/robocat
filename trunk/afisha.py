@@ -74,24 +74,28 @@ def AfishaFullSchedule(city):
 	else:
 		Cinema[city]={}
 	schedule=[]
-	getcinema=re.compile(u'class="subject">(?:[^>]+)>([^<]+)</a')
+	getcinema=re.compile(u'class="b-td-item">(?:[^>]+)>([^<]+)</a')
 	gettime=re.compile(u'<span (?:[^>]+)>(?:\s*)([^\r]+)(?:\s*)<')
 	gettime2=re.compile(u'<a (?:[^>]+)>(?:\s*)([^\r]+)(?:\s*)<')
-	site=urllib.urlopen('http://www.afisha.ru/%s/schedule_cinema/cinema/'%city)
+	site=urllib.urlopen('http://www.afisha.ru/%s/schedule_cinema/'%city)
 	content=unicode(site.read(),'cp1251')
-	text=re.search(u'"schedule-table movie">(.+?)<!--',content,re.DOTALL).group()
-	list1=re.split(u'<h2>([^>]+)>(?:\s*)([^\r]+)(?:\s*)<',text,re.DOTALL)
+	#text=re.search(u'"schedule-table movie">(.+?)<!--',content,re.DOTALL).group()
+	text=content
+	list1=re.split(u'<h3 class="usetags">([^>]+)>(?:\s*)([^\r]+)(?:\s*)<',text,re.DOTALL)
+	timetable=re.compile(u'table>')
 	films=zip(list1[2::3],list1[3::3])
 	for film in films:
-		list2=getcinema.split(film[1],re.DOTALL)
+		list2=getcinema.split(timetable.split(film[1])[1],re.DOTALL)
 		cinemas=zip(list2[1::2],list2[2::2])
 		for cinema in cinemas:
 			list3=gettime.split(cinema[1],re.DOTALL)
 			for time1 in list3[1::2]:
 				if gettime2.match(time1):
-					schedule.append((film[0],cinema[0],gettime2.split(time1)[1]))
+					if gettime2.split(time1)[1].find(":")>-1:
+						schedule.append((film[0],cinema[0],gettime2.split(time1)[1]))
 				else:
-					schedule.append((film[0],cinema[0],time1))
+					if time1.find(":")>-1:
+						schedule.append((film[0],cinema[0],time1))
 	schedule.sort(CompareSchedules)
 	Cinema[city]['lastupdated']=time.time()
 	Cinema[city]['schedule']=schedule

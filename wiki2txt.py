@@ -21,7 +21,7 @@
 #
 
 import re
-import urllib
+import urllib2
 
 
 def GetTemplate(name):
@@ -57,8 +57,12 @@ def Wiki2Text(wiki):
 	text=s3
 	return text
 def GetWiki(url):
-	f=urllib.urlopen(url)
-	s=unicode(f.read(),'utf-8')
+	request = urllib2.Request(url)
+	request.add_header('User-Agent', 'Opera/10.00 (X11; Linux x86_64 ; U; ru) Presto/2.2.0')
+	request.add_header('Accept-Charset', 'utf-8')
+	opener = urllib2.build_opener()                                   
+	data = opener.open(request).read()                      
+	s=unicode(data,'utf-8')
 	l=re.split(u'(?s)<textarea.*?>(.*?)</textarea>',s)
 
 	if len(l)>1:
@@ -71,7 +75,7 @@ def GetWiki(url):
 
 def CorrectWord(word):
 	s=word.title()
-	return urllib.quote(s.encode('utf-8'))
+	return urllib2.quote(s.encode('utf-8'))
 
 def RuWiki(word):
 	return 'http://ru.wikipedia.org/w/index.php?title=%s&action=edit'%word
@@ -98,10 +102,12 @@ def WikiHandler(user,command,args,mess):
 		n=CorrectWord(args)
 		url=RuWiki(n)
 		s=GetWiki(url)
+		if not len(s):
+			return u'Статья не найдена. Попробуйте поискать другую'
 		txt=Wiki2Text(s)
 		if len(txt):
 			return txt
 		else:
-			return u'Статья не найдена. Попробуйте поискать другую.'
+			return u'Статья пустая. Попробуйте почитать другую.'
 	else:
 		return u'Укажите, пожалуйста, название статьи.'

@@ -47,7 +47,7 @@ CONFERENCES={}
 PROXY={}
 #PROXY={'host':'http://proxy.ufanet.ru','port':3128}
 #PROXY={'host':'192.168.0.1','port':3128,'username':'tishka17','password':'secret'}
-ADMINS=[u'tishka17@jabber.ufanet.ru',u'lapin@psihaven.com',u'robocat@psihaven.com']
+ADMINS=[u'tishka17@jabber.ufanet.ru',u'lapin@psihaven.com',u'robocat@psihaven.com',u'tishka17@zoo.dontexist.net']
 IGNORE=[u'chat@conference.jabber.ufanet.ru/kenny',u'chat@conference.jabber.ufanet.ru/alengina',u'chat@conference.jabber.ufanet.ru/Metalcore']
 COMMANDS={}
 LogFileName='../Bot.log.html'
@@ -83,7 +83,7 @@ SimpleAnswer[u'х.з']=u'х.з - хуй знает. Хуй все знает, д
 SimpleAnswer[u'мур']=u'Че тебе?'
 SimpleAnswer[u'мяу']=u'гав )='
 SimpleAnswer[u':-*']=u'Другого иди целуй'
-SimpleAnswer[u'*']=u'Фи'
+SimpleAnswer[u'robocat']=u'Че?'
 
 
 def DoSimpleAnswer(user,command,args,mess):
@@ -158,15 +158,18 @@ def helpHandler(user,command,args,mess):
 def testHandler(user,command,args,mess):
     return u'Вас проверили'
 
+def whoamiHandler(user,command,args,mess):
+	return u'Меня зовут RoboCat.\nМои сорцы лежат по адресу: http://code.google.com/p/robocat\n Меня написал Tishka17 (tishka17@zoo.dontexist.net)'
 
 def exitHandler(user,command,args,mess):
 	return u'До свидания!'
 
 def talk(user,command,args,mess):
-	rnd=random.randrange(1,4)
+	rnd=random.randrange(1,5)
 	if rnd==1: return u'Мяу'
 	if rnd==2: return u'Ну и че ты сюда пишешь?'
 	if rnd==3: return u'Тебе делать нечего?'
+	if rnd==4: return u'Юзай справку!'
 
 def LOG(stanza,nick,text,to=0):
     if type(stanza)==type(time.time()):
@@ -200,6 +203,7 @@ def LOG(stanza,nick,text,to=0):
 
 
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
+COMMANDS[u'кто_ты']=(testHandler,0,u'Информация о Robocat')
 COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения другому пользователю. Синтаксис: джид_получателя сообщение')
 COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')

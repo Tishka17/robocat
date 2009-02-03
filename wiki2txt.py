@@ -86,7 +86,7 @@ def Lurkmore(word):
 	return 'http://lurkmore.ru/index.php?title=%s&action=edit'%word
 
 
-def LurkMoreHandler(user,command,args,mess):
+def LurkmoreHandler(user,command,args,mess):
 	if len(args):
 		n=CorrectWord(args)
 		url=Lurkmore(n)

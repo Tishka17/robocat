@@ -53,7 +53,7 @@ COMMANDS={}
 LogFileName='../Bot.log.html'
 LogFile='../Bot.log0.html'
 #LogFile='/media/data/www/BotLog.html'
-
+Status = u'Робокот на связи. Не знаете что я умею? Напишите в личку "справка".'
 Greetings=1
 Echo=0
 MaxChatReply=400
@@ -101,7 +101,7 @@ def JoinConf(CONF):
 	else:
 		secret=''
 		CONFERENCES[CONF]=''
-	p=xmpp.protocol.Presence(to='%s/%s'%(CONF,jid.getResource()))
+	p=xmpp.protocol.Presence(to='%s/%s'%(CONF,jid.getResource()), status=Status)
 	p.setTag('x',namespace=xmpp.protocol.NS_MUC).setTagData('password',secret)
 	p.getTag('x').addChild('history',{'maxchars':'0','maxstanzas':'0'})
 	conn.send(p)
@@ -338,7 +338,8 @@ conn.RegisterHandler('message',messageCB)
 conn.RegisterHandler('iq',versionHandler,'get',xmpp.NS_VERSION)
 #conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
 conn.RegisterHandler('presence',PresenceHandler)
-conn.sendInitPresence()
+p=xmpp.protocol.Presence(status=Status)
+conn.send(p)
 
 logger.LOG((u"Logged in.",),'simple')
 

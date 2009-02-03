@@ -38,8 +38,9 @@ def MakeTemplate(name,params):
 def Wiki2Text(wiki):
 	def x(s):
 		return s.group('adr')
-	cat=re.compile(u'(\[\[Category:.*?\]\])|(\[\[Категория:.*?\]\])')
+	cat=re.compile(u'(\[\[Category:.*?\]\])|(\[\[Категория:.*?\]\])|(\[\[Image:.*?\]\])|(\[\[Изображение:.*?\]\])')
 	lnk=re.compile(u'\[\[(?P<adr>.*?)\]\]')
+	lnk2=re.compile(u'\[\[(?:[^]]*)\|(?P<adr>.*?)\]\]')
 
 	s=re.sub(u'<!--.*?-->',u'',wiki)
 	ls=re.split(u'\{\{(.*?)\|(.*?)\}\}',s)
@@ -47,16 +48,16 @@ def Wiki2Text(wiki):
 	s1=u''
 	for i in lst:
 		s2=cat.sub(u'',i[2])
-		s4=lnk.sub(x,s2)
+		s3=lnk2.sub(x,s2)
+		s4=lnk.sub(x,s3)
 		s3=MakeTemplate(i[0],re.split(u'([^|]*)',i[1])[1::2])
 		s1=s1+s4+s3
 	s2=cat.sub(u'',ls[-1])
 	s4=lnk.sub(x,s2)
 	s1=s1+s4
 	s3=re.sub(u'\n{2,}','\n\n',s1)
+	return s3
 
-	text=s3
-	return text
 def GetWiki(url):
 	request = urllib2.Request(url)
 	request.add_header('User-Agent', 'Opera/10.00 (X11; Linux x86_64 ; U; ru) Presto/2.2.0')

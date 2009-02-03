@@ -82,6 +82,22 @@ def CorrectWord(word):
 def RuWiki(word):
 	return 'http://ru.wikipedia.org/w/index.php?title=%s&action=edit'%word
 
+def Lurkmore(word):
+	return 'http://kino.skripov.com/index.php?title=%s&action=edit'%word
+
+
+def LurkMoreHandler(user,command,args,mess):
+	if len(args):
+		n=CorrectWord(args)
+		url=Lurkmore(n)
+		s=GetWiki(url)
+		txt=Wiki2Text(s)
+		if len(txt):
+			return txt
+		else:
+			return u'Статья не найдена. Попробуйте поискать другой.'
+	else:
+		return u'Укажите, пожалуйста, название фильма.'
 def Cinema(word):
 	return 'http://kino.skripov.com/index.php?title=%s&action=edit'%word
 

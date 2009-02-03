@@ -21,6 +21,7 @@
 #
 
 import re
+import urllib
 import urllib2
 
 
@@ -75,7 +76,7 @@ def GetWiki(url):
 
 def CorrectWord(word):
 	s=word.title()
-	return urllib2.quote(s.encode('utf-8'))
+	return urllib.quote(s.encode('utf-8'))
 
 def RuWiki(word):
 	return 'http://ru.wikipedia.org/w/index.php?title=%s&action=edit'%word

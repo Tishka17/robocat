@@ -83,7 +83,7 @@ def RuWiki(word):
 	return 'http://ru.wikipedia.org/w/index.php?title=%s&action=edit'%word
 
 def Lurkmore(word):
-	return 'http://kino.skripov.com/index.php?title=%s&action=edit'%word
+	return 'http://lurkmore.ru/index.php?title=%s&action=edit'%word
 
 
 def LurkMoreHandler(user,command,args,mess):

@@ -203,7 +203,7 @@ def LOG(stanza,nick,text,to=0):
 
 
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
-COMMANDS[u'кто_ты']=(testHandler,0,u'Информация о Robocat')
+COMMANDS[u'кто_ты']=(whoamiHandler,0,u'Информация о Robocat')
 COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения другому пользователю. Синтаксис: джид_получателя сообщение')
 COMMANDS[u'зайди']=(JoinHandler,1,u'Приглашение бота в конференцию. Синтаксис: зайди джид_конфы')
 COMMANDS[u'выйди']=(LeaveHandler,1,u'Приглашение бота покинуть конференцию. Синтаксис: выйди джид_конфы')
@@ -282,7 +282,7 @@ def discoHandler(cn,stanza):
 def versionHandler(cn,stanza):
 	iq=stanza.buildReply('result')
 	iq.getTag('query').setTagData('name','Robocat')
-	iq.getTag('query').setTagData('version','0.0.2 dev')
+	iq.getTag('query').setTagData('version','0.0.3 dev')
 	iq.getTag('query').setTagData('os','MS DOS 1.0 [64-bit edition]')
 	cn.send(iq)
 

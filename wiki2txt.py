@@ -95,9 +95,9 @@ def LurkmoreHandler(user,command,args,mess):
 		if len(txt):
 			return txt
 		else:
-			return u'Статья не найдена. Попробуйте поискать другой.'
+			return u'Статья не найдена. Попробуйте поискать другую.'
 	else:
-		return u'Укажите, пожалуйста, название фильма.'
+		return u'Укажите, пожалуйста, название статьи после названия команды.'
 def Cinema(word):
 	return 'http://kino.skripov.com/index.php?title=%s&action=edit'%word
 
@@ -113,7 +113,7 @@ def CinemaHandler(user,command,args,mess):
 		else:
 			return u'Фильм не найден. Попробуйте поискать другой.'
 	else:
-		return u'Укажите, пожалуйста, название фильма.'
+		return u'Укажите, пожалуйста, название фильма после названия команды'
 
 def WikiHandler(user,command,args,mess):
 	if len(args):
@@ -128,4 +128,4 @@ def WikiHandler(user,command,args,mess):
 		else:
 			return u'Статья пустая. Попробуйте почитать другую.'
 	else:
-		return u'Укажите, пожалуйста, название статьи.'
+		return u'Укажите, пожалуйста, название статьи после команды'

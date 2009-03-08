@@ -105,7 +105,7 @@ class logToFile:
 		self.file.write(self.fileFooter)
 		self.file.flush()
 
-class logToCon():
+class logToCon:
 	'''Class-wrapper for print() '''
 	logTemplate={'def':"%s"}
 	#need to be developed

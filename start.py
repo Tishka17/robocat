@@ -57,7 +57,7 @@ Status = u'Робокот на связи. Не знаете что я умею?
 Greetings=1
 Echo=0
 MaxChatReply=400
-MaxReply=2000
+MaxReply=2500
 
 random.seed()
 ########################### user handlers start ##################################
@@ -74,8 +74,9 @@ SimpleAnswer[u'кто такой']=u'хрен моржовый!'
 SimpleAnswer[u'аська']=u'Смерть быдлоаське!'
 SimpleAnswer[u'айсик']=u'Смерть быдлоаське!'
 SimpleAnswer[u'icq']=u'Смерть быдлоаське!'
+SimpleAnswer[u'вконтакте']=u'Социальные сети гавно!'
 SimpleAnswer[u'винда']=u'Вендекапец!!!'
-SimpleAnswer[u'windows']=u'Вендекапец'
+SimpleAnswer[u'windows']=u'Вендекапец!'
 SimpleAnswer[u'jabber']=u'Джаббер рулит!'
 SimpleAnswer[u'джаббер']=u'Джаббер рулит!!!'
 SimpleAnswer[u'хз']=u'хз - хуй знает. Хуй все знает, да молчит...'
@@ -83,7 +84,8 @@ SimpleAnswer[u'х.з']=u'х.з - хуй знает. Хуй все знает, д
 SimpleAnswer[u'мур']=u'Че тебе?'
 SimpleAnswer[u'мяу']=u'гав )='
 SimpleAnswer[u':-*']=u'Другого иди целуй'
-SimpleAnswer[u'robocat']=u'Че?'
+SimpleAnswer[u'робокот']=u'Че?'
+SimpleAnswer[u'куку']=u'Кукушка, что ли?'
 
 
 def DoSimpleAnswer(user,command,args,mess):
@@ -171,37 +173,6 @@ def talk(user,command,args,mess):
 	if rnd==3: return u'Тебе делать нечего?'
 	if rnd==4: return u'Юзай справку!'
 
-#def LOG(stanza,nick,text,to=0):
-#    if type(stanza)==type(time.time()):
-#    	tm=time.strftime("%H:%M:%S",time.localtime(stanza))
-#    elif to>-1:
-#    	ts=stanza.getTimestamp()
-#    	if not ts:
-#		ts=stanza.setTimestamp()
-#		ts=stanza.getTimestamp()
-#    	tp=time.mktime(time.strptime(ts,'%Y%m%dT%H:%M:%S'))+3600*5
-#    	if time.localtime()[-1]: tp+=3600
-#    	tp=time.localtime(tp)
-#    	day=time.strftime("%d",tp)
-#    	tm=time.strftime("%H:%M:%S",tp)
-#    try: open(LogFile)
-#    except:
-#        open(LogFile,'w').write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-#<html xml:lang="ru-RU" lang="ru-RU" xmlns="http://www.w3.org/1999/xhtml">
-#    <head>
-#        <meta content="text/html; charset=utf-8" http-equiv="content-type" />
-#    </head>
-#    <body>
-#    <table border="1" cellspacing=0 cellpadding=1><tr><th>time</th><th>who</th><th>text</th></tr>\n""")
-#    text=text.replace('\n','<br>')
-#    if to==1:
-#    	open(LogFile,'a').write((u"<tr><td>%s</td><td>To <font color=#000088>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
-#    elif to==0:
-#    	open(LogFile,'a').write((u"<tr><td>%s</td><td>From <font color=#008800>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
-#    else:
-#    	open(LogFile,'a').write((u"<tr><td>%s</td><td colspan=2 align='center'><font color=#880000>%s</font></td></tr>\n"%(tm,text)).encode('utf-8'))
-
-
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
 COMMANDS[u'кто_ты']=(whoamiHandler,0,u'Информация о Robocat')
 COMMANDS[u'отправь']=(SendHandler,1,u'Отправка сообщения другому пользователю. Синтаксис: джид_получателя сообщение')
@@ -218,8 +189,7 @@ COMMANDS[u'справка']=(helpHandler,0,u'Эта справка. Синтак
 ############################ bot logic start #####################################
 
 def messageCB(conn,mess):
-    print '0.3 waited'
-    time.sleep(0.3)
+    time.sleep(0.2)
     text=mess.getBody()
     user=mess.getFrom()
 
@@ -241,7 +211,7 @@ def messageCB(conn,mess):
 			personal=0
 	reply=u''
 	if re.match(u"icq(.+)",user.getDomain()) or re.match(u"jit(.+)",user.getDomain()):
-		reply=u"Вам отвечает бот. Хочу напомнить вам, что более совершенным чем icq является протокол jabber, рекомендую вам переходить на него. В джаббере этот бот предоставляет некоторые интересные функции... Подробнее о джаббере можете прочитать, напрмер, тут: http://jabber.ufanet.ru Мой JID: %s Смерть быдлоаське! Автор бота - Tishka17 (jid: tishka17@jabber.ufanet.ru)"%(jid.getStripped())
+		reply=u"Вам отвечает бот. Хочу напомнить вам, что более совершенным чем icq является протокол jabber, рекомендую вам переходить на него. В джаббере этот бот предоставляет некоторые интересные функции... Подробнее о джаббере можете прочитать, напрмер, тут: http://jabber.ufanet.ru\nМой JID: %s\nСмерть быдлоаське!\nАвтор бота - Tishka17 (jid: tishka17@zoo.dontexist.net"%(jid.getStripped())
         elif COMMANDS.has_key(cmd) and (not (COMMANDS[cmd][1]) or (user.getStripped() in ADMINS or user.__str__() in ADMINS)):
 			reply=COMMANDS[cmd][0](user,command,args,mess)
 	else: 
@@ -274,7 +244,7 @@ def messageCB(conn,mess):
 			logger.LOG(mess1,'simple')
 			conn.send(mess1)
 
-	if command==u'выход' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
+	if command==u'закрыть' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
         	sys.exit()
 
 def discoHandler(cn,stanza):
@@ -308,8 +278,7 @@ def GoOn(conn,lastsent):
 	while StepOn(conn): 
 		now=time.localtime(time.time())
 		if (now[4]!=lastsent[4]):
-		    print 'send iq'
-		    iq=xmpp.Iq("",to=jid.server())
+		    iq=xmpp.Iq("",to=jid.getDomain())
 		    conn.send(iq)
 		    lastsent=now
 

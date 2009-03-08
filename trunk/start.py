@@ -171,35 +171,35 @@ def talk(user,command,args,mess):
 	if rnd==3: return u'Тебе делать нечего?'
 	if rnd==4: return u'Юзай справку!'
 
-def LOG(stanza,nick,text,to=0):
-    if type(stanza)==type(time.time()):
-    	tm=time.strftime("%H:%M:%S",time.localtime(stanza))
-    elif to>-1:
-    	ts=stanza.getTimestamp()
-    	if not ts:
-		ts=stanza.setTimestamp()
-		ts=stanza.getTimestamp()
-    	tp=time.mktime(time.strptime(ts,'%Y%m%dT%H:%M:%S'))+3600*5
-    	if time.localtime()[-1]: tp+=3600
-    	tp=time.localtime(tp)
-    	day=time.strftime("%d",tp)
-    	tm=time.strftime("%H:%M:%S",tp)
-    try: open(LogFile)
-    except:
-        open(LogFile,'w').write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xml:lang="ru-RU" lang="ru-RU" xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta content="text/html; charset=utf-8" http-equiv="content-type" />
-    </head>
-    <body>
-    <table border="1" cellspacing=0 cellpadding=1><tr><th>time</th><th>who</th><th>text</th></tr>\n""")
-    text=text.replace('\n','<br>')
-    if to==1:
-    	open(LogFile,'a').write((u"<tr><td>%s</td><td>To <font color=#000088>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
-    elif to==0:
-    	open(LogFile,'a').write((u"<tr><td>%s</td><td>From <font color=#008800>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
-    else:
-    	open(LogFile,'a').write((u"<tr><td>%s</td><td colspan=2 align='center'><font color=#880000>%s</font></td></tr>\n"%(tm,text)).encode('utf-8'))
+#def LOG(stanza,nick,text,to=0):
+#    if type(stanza)==type(time.time()):
+#    	tm=time.strftime("%H:%M:%S",time.localtime(stanza))
+#    elif to>-1:
+#    	ts=stanza.getTimestamp()
+#    	if not ts:
+#		ts=stanza.setTimestamp()
+#		ts=stanza.getTimestamp()
+#    	tp=time.mktime(time.strptime(ts,'%Y%m%dT%H:%M:%S'))+3600*5
+#    	if time.localtime()[-1]: tp+=3600
+#    	tp=time.localtime(tp)
+#    	day=time.strftime("%d",tp)
+#    	tm=time.strftime("%H:%M:%S",tp)
+#    try: open(LogFile)
+#    except:
+#        open(LogFile,'w').write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+#<html xml:lang="ru-RU" lang="ru-RU" xmlns="http://www.w3.org/1999/xhtml">
+#    <head>
+#        <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+#    </head>
+#    <body>
+#    <table border="1" cellspacing=0 cellpadding=1><tr><th>time</th><th>who</th><th>text</th></tr>\n""")
+#    text=text.replace('\n','<br>')
+#    if to==1:
+#    	open(LogFile,'a').write((u"<tr><td>%s</td><td>To <font color=#000088>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
+#    elif to==0:
+#    	open(LogFile,'a').write((u"<tr><td>%s</td><td>From <font color=#008800>%s</font>:</td><td>%s</td></tr>\n"%(tm,nick,text)).encode('utf-8'))
+#    else:
+#    	open(LogFile,'a').write((u"<tr><td>%s</td><td colspan=2 align='center'><font color=#880000>%s</font></td></tr>\n"%(tm,text)).encode('utf-8'))
 
 
 COMMANDS[u'тест']=(testHandler,0,u'Просто проверка связи')
@@ -218,6 +218,8 @@ COMMANDS[u'справка']=(helpHandler,0,u'Эта справка. Синтак
 ############################ bot logic start #####################################
 
 def messageCB(conn,mess):
+    print '0.3 waited'
+    time.sleep(0.3)
     text=mess.getBody()
     user=mess.getFrom()
 
@@ -306,7 +308,8 @@ def GoOn(conn,lastsent):
 	while StepOn(conn): 
 		now=time.localtime(time.time())
 		if (now[4]!=lastsent[4]):
-		    iq=xmpp.Iq("get",to=jid)
+		    print 'send iq'
+		    iq=xmpp.Iq("",to=jid.server())
 		    conn.send(iq)
 		    lastsent=now
 
@@ -338,6 +341,7 @@ conn.RegisterHandler('message',messageCB)
 conn.RegisterHandler('iq',versionHandler,'get',xmpp.NS_VERSION)
 #conn.RegisterHandler('iq',discoHandler,xmlns=xmpp.NS_DISCO_INFO)
 conn.RegisterHandler('presence',PresenceHandler)
+conn.sendInitPresence()
 p=xmpp.protocol.Presence(status=Status)
 conn.send(p)
 

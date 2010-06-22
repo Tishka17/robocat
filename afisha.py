@@ -78,7 +78,7 @@ def AfishaFullSchedule(city):
 	gettime=re.compile(u'<span (?:[^>]+)>(?:\s*)([^\r]+)(?:\s*)<')
 	gettime2=re.compile(u'<a (?:[^>]+)>(?:\s*)([^\r]+)(?:\s*)<')
 	site=urllib.urlopen('http://www.afisha.ru/%s/schedule_cinema/'%city)
-	content=unicode(site.read(),'cp1251')
+	content=unicode(site.read(),'utf-8')
 	#text=re.search(u'"schedule-table movie">(.+?)<!--',content,re.DOTALL).group()
 	text=content
 	list1=re.split(u'<h3 class="usetags">([^>]+)>(?:\s*)([^\r]+)(?:\s*)<',text,re.DOTALL)

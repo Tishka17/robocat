@@ -26,11 +26,12 @@ import random
 import re
 import time
 import afisha,mirkino #2 kino schedule getting libraries
-import wiki2txt 
+import wiki2txt
 import os
 import logwriter
 from logwriter import *
 
+import threading
 lastsent=time.localtime(time.time())
 
 if len(sys.argv)<3:
@@ -91,8 +92,8 @@ SimpleAnswer[u'куку']=u'Кукушка, что ли?'
 def DoSimpleAnswer(user,command,args,mess):
 	text=mess.getBody().lower()
 	answer=u''
-	for i in SimpleAnswer: 
-		if text.find(i)>-1: 
+	for i in SimpleAnswer:
+		if text.find(i)>-1:
 			if answer==u'': answer=SimpleAnswer[i]
 			else: answer=answer+u' '+SimpleAnswer[i]
 	return answer
@@ -122,14 +123,14 @@ def LeaveConf(CONF):
 	logger.LOG((u'Conference %s left'%CONF,),'simple')
 	
 def JoinHandler(user,command,args,mess):
-	try: 
+	try:
 		JoinConf(args)
 		return u'Захожу в конференцию %s'%args
 	except:
 		return u'Не могу зайти в конференцию %s'%args
 
 def LeaveHandler(user,command,args,mess):
-	try: 
+	try:
 		LeaveConf(args)
 		return u'Выхожу из конференции %s'%args
 	except:
@@ -188,7 +189,7 @@ COMMANDS[u'справка']=(helpHandler,0,u'Эта справка. Синтак
 ########################### user handlers stop ###################################
 ############################ bot logic start #####################################
 
-def messageCB(conn,mess):
+def messageCB_async(conn,mess):
     time.sleep(0.2)
     text=mess.getBody()
     user=mess.getFrom()
@@ -246,6 +247,11 @@ def messageCB(conn,mess):
 
 	if command==u'закрыть' and (user.getStripped() in ADMINS or user.__str__() in ADMINS):
         	sys.exit()
+
+def messageCB(conn,mess):
+    a=threading.Thread(target=messageCB_async,args=(conn,mess))
+    a.daemon = True;
+    a.start()
 
 def discoHandler(cn,stanza):
 	iq=stanza.buildReply('result')
